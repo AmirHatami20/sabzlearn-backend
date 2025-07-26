@@ -19,6 +19,7 @@ const app = express();
 app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    origin: 'https://sabzlearn-frontend.vercel.app'
 }));
 
 app.use(express.json());
