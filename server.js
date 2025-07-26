@@ -38,7 +38,8 @@ app.use('/user', userRoutes);
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log("Server is running on port " + PORT);
-    })
+    app.listen(PORT || 3000, '0.0.0.0', () => {
+        console.log('Server is running...');
+    });
+
 })
