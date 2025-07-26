@@ -35,10 +35,8 @@ app.use('/session', sessionRoutes);
 app.use('/off', offRoutes);
 app.use('/user', userRoutes);
 
-const PORT = process.env.PORT || 3000;
-
 connectDB().then(() => {
-    app.listen(PORT || 3000, '0.0.0.0', () => {
+    app.listen('0.0.0.0', () => {
         console.log('Server is running...');
     });
 
