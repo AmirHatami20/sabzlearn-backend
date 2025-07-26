@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
-
 const connectDB = require('./config/db');
 
 // Import routes
@@ -16,14 +15,20 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 
+// ✅ CORS تنظیم دقیق
 app.use(cors({
+    origin: 'https://sabzlearn-frontend.vercel.app',
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    origin: 'https://sabzlearn-frontend.vercel.app'
+    credentials: true
 }));
 
+// ✅ برای پیش‌درخواست‌ها (OPTIONS)
+app.options("*", cors());
+
+// Body parsers
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/article', articleRoutes);
@@ -38,8 +43,7 @@ app.use('/user', userRoutes);
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
-    app.listen(PORT || 3000, '0.0.0.0', () => {
-        console.log('Server is running...');
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server is running on http://0.0.0.0:${PORT}`);
     });
-
-})
+});
