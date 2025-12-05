@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
 const UserModel = require("../models/user");
-const UserCourseModel = require("../models/user-course");
 const BanPhoneModel = require("../models/ban-phone");
 const OtpModel = require("../models/otp");
 const transporter = require("../config/nodeMailer");
