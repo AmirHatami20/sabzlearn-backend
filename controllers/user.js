@@ -1,7 +1,6 @@
 const UserModel = require("../models/user");
 const BanUserModel = require("../models/ban-phone");
 const UserCourseModel = require("../models/user-course");
-const UserBasketModel = require("../models/user-basket");
 
 module.exports = {
     getAllUsers: async function (req, res) {
@@ -29,8 +28,7 @@ module.exports = {
         return res.send(deletedUser);
     },
     banUser: async function (req, res) {
-        const mainUser = await UserModel.findById(req.params.id)
-            .lean();
+        const mainUser = await UserModel.findById(req.params.id).lean();
 
         const banUserResult = await BanUserModel.create({phone: mainUser.phone});
 
@@ -67,15 +65,6 @@ module.exports = {
 
         const userCourses = await UserCourseModel.find({user: userId})
             .populate("course")
-            .lean();
-
-        res.json(userCourses);
-    },
-    getUserBasket: async function (req, res) {
-        const userId = req.user._id;
-
-        const userCourses = await UserBasketModel.find({user: userId})
-            .populate("items.course")
             .lean();
 
         res.json(userCourses);

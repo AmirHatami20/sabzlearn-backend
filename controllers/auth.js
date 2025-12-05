@@ -6,13 +6,22 @@ const BanPhoneModel = require("../models/ban-phone");
 const OtpModel = require("../models/otp");
 const transporter = require("../config/nodeMailer");
 
-
 const generateToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: "7d"});
 }
 
+const setTokenCookie = (res, token) => {
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+};
+
 const sendOtp = async (email, res) => {
     const code = Math.floor(10000 + Math.random() * 90000).toString();
+    console.log(code)
 
     await OtpModel.deleteMany({email}); // Delete pre
 
@@ -111,7 +120,7 @@ module.exports = {
         await OtpModel.deleteMany({email}); // Clean otp
 
         if (mode === "login") {
-            const user = await UserModel.findOne({email})
+            const user = await UserModel.findOne({email}).select("-password");
 
             if (!user) {
                 return res.status(404).json({
@@ -120,9 +129,13 @@ module.exports = {
                 })
             }
 
+            const token = generateToken(user._id);
+
+            setTokenCookie(res, token)
+
             return res.json({
+                success: true,
                 user,
-                token: generateToken(user._id),
                 message: "ورود موفقیت‌آمیز بود"
             });
         }
@@ -136,31 +149,38 @@ module.exports = {
                 role: "USER"
             });
 
+            const token = generateToken(user._id);
+
+            setTokenCookie(res, token);
+
             return res.status(201).json({
+                success: true,
                 user,
-                token: generateToken(user._id),
                 message: "ثبت ‌نام موفقیت‌آمیز بود"
             });
         }
-
     },
     getMe: async (req, res) => {
-        const userId = req.user.id;
+        return res.status(200).json(req.user);
+    },
+    logout: async (req, res) => {
+        try {
+            res.clearCookie("token", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+            });
 
-        const userCourses = await UserCourseModel.find({user: userId})
-            .populate("course");
-
-        const user = req.user;
-
-        const courses = [];
-
-        for (const userCourse of userCourses) {
-            courses.push(userCourse.course);
+            return res.json({
+                success: true,
+                message: "خروج موفقیت‌آمیز بود",
+            });
+        } catch (err) {
+            console.error("Logout error:", err);
+            return res.status(500).json({
+                success: false,
+                message: "خطا در خروج از حساب کاربری",
+            });
         }
-
-        return res.json({
-            user,
-            courses
-        });
     }
 }

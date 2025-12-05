@@ -12,7 +12,7 @@ module.exports = {
                 description,
                 shortName,
                 body,
-                creator: req.user._id,
+                creator: req.user._id, // come from middleware
                 category,
                 imageUrl,
                 isPublished: true,
@@ -29,11 +29,7 @@ module.exports = {
     },
     getAllArticle: async (req, res) => {
         try {
-            const articles = await ArticleModel.find()
-                .populate("creator", "name")
-                .sort({_id: -1})
-                .lean()
-
+            const articles = await ArticleModel.find().populate("creator", "name").lean()
             return res.json(articles);
         } catch (err) {
             return res.status(500).json({
@@ -43,10 +39,8 @@ module.exports = {
         }
     },
     getArticleById: async (req, res) => {
-        const {id} = req.params;
-
         try {
-            const article = await ArticleModel.findById(id)
+            const article = await ArticleModel.findById(req.params.id)
                 .populate("category")
                 .populate("creator", "-password")
                 .lean();

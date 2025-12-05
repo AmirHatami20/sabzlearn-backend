@@ -25,9 +25,6 @@ router.put("/unban/:id", authMiddleware, isAdminMiddleware, userController.unban
 // Get user courses
 router.get("/courses", authMiddleware, userController.getUserCourses);
 
-// Get user basket
-router.get("/basket", authMiddleware, userController.getUserBasket);
-
 // Change user role
 router.put("/role/:id", authMiddleware, isAdminMiddleware, userController.changeUserRole);
 

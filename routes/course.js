@@ -20,13 +20,10 @@ router.get("/", courseController.getAllCourse);
 router.get("/related/:id", courseController.getRelated);
 
 // Get by shortName
-router.get("/:shortName", courseController.getCourseInfo);
+router.get("/:shortName", courseController.getCourseByName);
 
 // Register User
 router.patch("/:id/register", authMiddleware, courseController.registerCourse);
-
-// Add to Basket
-router.patch("/:id/addToBasket", authMiddleware, courseController.addToBasket);
 
 // Update Course
 router.put("/:id", authMiddleware, isAdminMiddleware, courseController.updateCourse);

@@ -1,26 +1,25 @@
-const jwt = require('jsonwebtoken');
-const UserModel = require('../models/user');
+const jwt = require("jsonwebtoken");
+const UserModel = require("../models/user");
 
 module.exports = async (req, res, next) => {
-    let token = req.header('Authorization')?.split(' ')[1];
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.status(403).json({
-            success: false,
-            message: 'No token provided'
-        })
+        return res.status(401).json({message: "ابتدا وارد شوید."});
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.user = await UserModel.findById(decoded.id).select('-password');
+        const user = await UserModel.findById(decoded.id).select("-password");
+        if (!user) {
+            return res.status(404).json({message: "کاربر یافت نشد."});
+        }
 
-        next()
+        req.user = user;
+        next();
+
     } catch (err) {
-        return res.status(404).json({
-            success: false,
-            message: 'User With this Token in not founded'
-        })
+        return res.status(401).json({message: "توکن نامعتبر است."});
     }
 };

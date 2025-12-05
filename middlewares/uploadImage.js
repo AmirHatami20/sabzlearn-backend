@@ -1,13 +1,15 @@
 const {UploadClient} = require("@uploadcare/upload-client");
-const client = new UploadClient({publicKey: process.env.UPLOADCARE_PUBLIC_KEY});
+const client = new UploadClient({
+    publicKey: process.env.UPLOADCARE_PUBLIC_KEY,
+});
 
 const uploadImage = async (req, res, next) => {
     const file = req.file;
 
     if (!file) {
-        return res.status(400).send({
+        return res.status(400).json({
             success: false,
-            message: 'Please upload a file!',
+            message: "Please upload a file!",
         });
     }
 
@@ -21,7 +23,7 @@ const uploadImage = async (req, res, next) => {
 
         next();
     } catch (err) {
-        return res.status(400).send({
+        return res.status(400).json({
             success: false,
             message: err.message,
         });

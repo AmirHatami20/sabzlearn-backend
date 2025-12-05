@@ -33,7 +33,6 @@ module.exports = {
     },
     createComment: async (req, res) => {
         const courseId = req.params.id;
-
         const {body} = req.body;
 
         const selectedCourse = await CourseModel.findById(courseId);
@@ -92,10 +91,8 @@ module.exports = {
         }
     },
     acceptComment: async (req, res) => {
-        const {id} = req.params;
-
         try {
-            const acceptedComment = await CommentModel.findByIdAndUpdate(id, {isAccepted: true}, {new: true});
+            const acceptedComment = await CommentModel.findByIdAndUpdate(req.params.id, {isAccepted: true}, {new: true});
 
             if (!acceptedComment) {
                 return res.status(404).json({
@@ -114,10 +111,8 @@ module.exports = {
         }
     },
     rejectComment: async (req, res) => {
-        const {id} = req.params;
-
         try {
-            const rejectedComment = await CommentModel.findByIdAndUpdate(id, {isAccepted: false}, {new: true});
+            const rejectedComment = await CommentModel.findByIdAndUpdate(req.params.id, {isAccepted: false}, {new: true});
 
             if (!rejectedComment) {
                 return res.status(404).json({
@@ -136,9 +131,7 @@ module.exports = {
         }
     },
     deleteComment: async (req, res) => {
-        const {id} = req.params;
-
-        const deletedComment = await CommentModel.findByIdAndDelete(id);
+        const deletedComment = await CommentModel.findByIdAndDelete(req.params.id);
 
         if (!deletedComment) {
             return res.status(404).json({message: "Comment Not Found!"});

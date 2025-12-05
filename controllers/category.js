@@ -5,13 +5,8 @@ module.exports = {
         const {title, name} = req.body;
 
         try {
-            const newCategory = await categoryModel.create({
-                title,
-                name
-            });
-
+            const newCategory = await categoryModel.create({title, name});
             return res.status(201).json(newCategory);
-
         } catch (err) {
             return res.status(400).json({
                 success: false,
@@ -44,9 +39,7 @@ module.exports = {
                     }
                 }
             ]);
-
             res.status(200).json(allCategoriesWithCourse);
-
         } catch
             (err) {
             return res.status(400).json({
@@ -57,9 +50,7 @@ module.exports = {
     },
     updateCategory: async (req, res) => {
         const {title} = req.body;
-        const {id} = req.params;
-
-        const updatedCategory = await categoryModel.findByIdAndUpdate(id, {title});
+        const updatedCategory = await categoryModel.findByIdAndUpdate(req.params.id, {title});
 
         if (!updatedCategory) {
             return res.status(404).json({
@@ -70,17 +61,16 @@ module.exports = {
 
         return res.json(updatedCategory);
     },
-    deleteCategory:
-        async (req, res) => {
-            const deletedCategory = await categoryModel.findByIdAndDelete(req.params.id);
+    deleteCategory: async (req, res) => {
+        const deletedCategory = await categoryModel.findByIdAndDelete(req.params.id);
 
-            if (!deletedCategory) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Category Not Found!"
-                });
-            }
+        if (!deletedCategory) {
+            return res.status(404).json({
+                success: false,
+                message: "Category Not Found!"
+            });
+        }
 
-            return res.json(deletedCategory);
-        },
+        return res.json(deletedCategory);
+    },
 }

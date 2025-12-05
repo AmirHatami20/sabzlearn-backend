@@ -2,7 +2,6 @@ const sanitizeHtml = require('sanitize-html');
 
 const CourseModel = require("../models/course");
 const UserCourseModel = require("../models/user-course");
-const UserBasketModel = require("../models/user-basket");
 
 module.exports = {
     createCourse: async (req, res) => {
@@ -60,8 +59,7 @@ module.exports = {
             .lean()
             .sort({_id: -1});
 
-        const registers = await UserCourseModel.find()
-            .lean();
+        const registers = await UserCourseModel.find().lean();
 
         try {
             const registerMap = new Map();
@@ -92,7 +90,7 @@ module.exports = {
             })
         }
     },
-    getCourseInfo: async (req, res) => {
+    getCourseByName: async (req, res) => {
         const {shortName} = req.params;
 
         const course = await CourseModel.findOne({shortName})
@@ -108,10 +106,7 @@ module.exports = {
         });
     },
     getRelated: async (req, res) => {
-        const {id} = req.params;
-
-        const course = await CourseModel.findById(id)
-            .lean();
+        const course = await CourseModel.findById(req.params.id).lean();
 
         if (!course) {
             return res.status(404).json({
@@ -122,7 +117,7 @@ module.exports = {
 
         const relatedCourses = await CourseModel.find({
             category: course.category,
-            _id: {$ne: id} // All course without this course
+            _id: {$ne: req.params.id} // All course without this course
         }).lean();
 
         res.json(relatedCourses);
@@ -131,8 +126,7 @@ module.exports = {
         const userId = req.user._id
         const courseId = req.params.id;
 
-        const isUserAlreadyRegistered = await UserCourseModel.findOne({user: userId, course: courseId})
-            .lean();
+        const isUserAlreadyRegistered = await UserCourseModel.findOne({user: userId, course: courseId}).lean();
 
         if (isUserAlreadyRegistered) {
             return res.status(409).json({
@@ -150,52 +144,6 @@ module.exports = {
                 success: true,
                 message: "you are registered successfully."
             });
-        } catch (err) {
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            })
-        }
-    },
-    addToBasket: async (req, res) => {
-        const userId = req.user._id
-        const courseId = req.params.id;
-
-        try {
-            const course = await CourseModel.findById(courseId)
-
-            if (!course) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Course not found"
-                })
-            }
-
-            let basket = await UserBasketModel.findOne({user: userId})
-
-            if (!basket) {
-                basket = await UserBasketModel.create({
-                    user: userId,
-                    items: []
-                })
-            }
-
-            const isAlreadyInBasket = basket.items.some((item) => (
-                courseId === item.course.toString()
-            ))
-
-            if (isAlreadyInBasket) {
-                return res.status(409).json({
-                    success: false,
-                    message: "You are already added this course to basket."
-                })
-            }
-
-            basket.items.push({course: courseId});
-            await basket.save()
-
-            return res.status(201).json(basket);
-
         } catch (err) {
             return res.status(400).json({
                 success: false,
